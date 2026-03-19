@@ -23,6 +23,10 @@ RUN mkdir /CLIProxyAPI
 COPY --from=builder ./app/CLIProxyAPI /CLIProxyAPI/CLIProxyAPI
 
 COPY config.example.yaml /CLIProxyAPI/config.example.yaml
+COPY .env.example /CLIProxyAPI/.env.example
+COPY entrypoint.sh /CLIProxyAPI/entrypoint.sh
+
+RUN chmod +x /CLIProxyAPI/entrypoint.sh
 
 WORKDIR /CLIProxyAPI
 
@@ -32,4 +36,5 @@ ENV TZ=Asia/Shanghai
 
 RUN cp /usr/share/zoneinfo/${TZ} /etc/localtime && echo "${TZ}" > /etc/timezone
 
+ENTRYPOINT ["/CLIProxyAPI/entrypoint.sh"]
 CMD ["./CLIProxyAPI"]
