@@ -529,7 +529,7 @@ func LoadConfig(configFile string) (*Config, error) {
 // If optional is true and the file is empty or invalid, it returns an empty Config.
 func LoadConfigOptional(configFile string, optional bool) (*Config, error) {
 	// Read the entire configuration file into memory.
-	data, err := os.ReadFile(configFile)
+	rawData, err := os.ReadFile(configFile)
 	if err != nil {
 		if optional {
 			if os.IsNotExist(err) || errors.Is(err, syscall.EISDIR) {
@@ -539,6 +539,9 @@ func LoadConfigOptional(configFile string, optional bool) (*Config, error) {
 		}
 		return nil, fmt.Errorf("failed to read config file: %w", err)
 	}
+
+	// Expand ${VAR} / $VAR placeholders using the process environment (e.g. Render env vars).
+	data := []byte(os.ExpandEnv(string(rawData)))
 
 	// In cloud deploy mode (optional=true), if file is empty or contains only whitespace, return empty config.
 	if optional && len(data) == 0 {
